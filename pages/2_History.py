@@ -28,10 +28,9 @@ def get_row_color(row):
     return [''] * len(row)
 
 # --- GOOGLE SHEETS CONNECTION ---
-creds = json.loads(st.secrets["gcp_service_account"])
-conn = st.connection("gsheets", type=GSheetsConnection, service_account_info=creds)
+conn = st.connection("gsheets", type=GSheetsConnection)
 
-# PASTE YOUR GOOGLE SHEET URL HERE
+# Pull the secure URL from Streamlit Secrets
 SHEET_URL = st.secrets["sheet_url"]
 # --------------------------------
 
