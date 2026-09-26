@@ -67,6 +67,7 @@ To allow the app to securely write to your Google Sheet behind the scenes, you n
    client_x509_cert_url = "PASTE_FROM_JSON"
    universe_domain = "googleapis.com"
 (Note: Ensure your private_key includes the -----BEGIN PRIVATE KEY----- and -----END PRIVATE KEY----- blocks exactly as they appear in the JSON).
+
 5. Click Save and then click Deploy!
 
  ### Phase 5: Install on iOS (Progressive Web App)
