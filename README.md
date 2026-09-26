@@ -1,6 +1,6 @@
 # RD STRENGTH 
 
-> A streamlined, personal workout tracker built with Python and Streamlit, optimized as a Progressive Web App (PWA) for iOS. Built by Cristian.
+> A streamlined, personal workout tracker built with Python and Streamlit, optimized as a Progressive Web App (PWA) for iOS.
 
 ## Overview
 RD Strength is a lightweight fitness logging application designed to replace spreadsheet tracking. It provides a mobile-friendly interface for loading predefined workout templates, logging sets and repetitions on the fly, and visualizing strength progression over time. 
