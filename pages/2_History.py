@@ -32,7 +32,7 @@ creds = json.loads(st.secrets["gcp_service_account"])
 conn = st.connection("gsheets", type=GSheetsConnection, service_account_info=creds)
 
 # PASTE YOUR GOOGLE SHEET URL HERE
-SHEET_URL = "https://docs.google.com/spreadsheets/d/YOUR_UNIQUE_URL_ID_HERE/edit"
+SHEET_URL = st.secrets["sheet_url"]
 # --------------------------------
 
 try:
