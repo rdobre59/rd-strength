@@ -7,6 +7,8 @@ RD Strength is a lightweight fitness logging application designed to replace spr
 
 **Data is saved directly to a private Google Sheet**, ensuring your workout history is permanently stored, fully accessible, and safe from cloud server resets.
 
+There are hard-coded templates like Arnold and Push-Pull-Legs workouts so I can load my daily split with one tap, but the code is totally open—so anyone can grab it and easily swap in their own custom routines and number of sets under TEMPLATES in  1_Home.py.
+
 ## Features
 * **Dynamic Templates:** Instantly load customized Arnold and Push-Pull-Legs (PPL) splits.
 * **Interactive Logging:** An editable, Excel-like data grid allows for rapid input of weight and reps for individual sets.
