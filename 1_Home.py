@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import datetime
-import os
+import json
+from streamlit_gsheets import GSheetsConnection
 
 # Custom HTML Logo
 st.markdown(
@@ -14,7 +15,14 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 1. Define your workout templates
+# --- GOOGLE SHEETS CONNECTION ---
+creds = json.loads(st.secrets["gcp_service_account"])
+conn = st.connection("gsheets", type=GSheetsConnection, service_account_info=creds)
+
+# PASTE YOUR GOOGLE SHEET URL HERE
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1-k8Piq7y1jqugtLkzGXBg7J7khnPnQu6z2wRndWb3EY/edit?usp=drivesdk"
+# --------------------------------
+
 TEMPLATES = {
     "Anterior": [("Tricep Extensions Single", 2), ("Cuff Shoulder Fly", 2), ("Low Fly", 2), ("Incline Chest Press", 2), ("Overhead Tricep Extension", 2), ("Abductors", 2), ("Quad extension", 2), ("Sissy Squat Hack", 2)],
     "Posterior": [("Calf Press", 2), ("Wide Pulldown", 2), ("Incline Drag Curl", 2), ("Rear Delt Fly", 2), ("Hammer Curl", 2), ("Low Row", 2), ("Ham Curl", 2), ("Adductors", 2), ("Single Leg Hyperextension", 2)],
@@ -27,7 +35,6 @@ TEMPLATES = {
     "Custom...": []
 }
 
-# 2. Select Workout
 workout_type = st.selectbox("Workout Split", list(TEMPLATES.keys()))
 
 if workout_type == "Custom...":
@@ -38,7 +45,6 @@ else:
 if 'workout_log' not in st.session_state:
     st.session_state.workout_log = []
 
-# 3. Load Template Button
 if st.button(f"Load {workout_type} Template"):
     st.session_state.workout_log = []
     for ex, num_sets in TEMPLATES[workout_type]:
@@ -53,7 +59,6 @@ if st.button(f"Load {workout_type} Template"):
 st.divider()
 st.subheader(f"Current Log: {workout_name}")
 
-# 4. Display the interactive data editor without styling
 if len(st.session_state.workout_log) > 0:
     df = pd.DataFrame(st.session_state.workout_log)
     
@@ -63,17 +68,12 @@ if len(st.session_state.workout_log) > 0:
         num_rows="dynamic", 
         hide_index=True,
         column_config={
-            "Weight (kg)": st.column_config.NumberColumn(
-                "Weight (kg)",
-                format="%.1f"
-            )
+            "Weight (kg)": st.column_config.NumberColumn("Weight (kg)", format="%.1f")
         }
     )
     
-    # 5. Save the final edited table
     if st.button("Finish & Save Workout"):
         final_log = edited_df.to_dict('records')
-        
         today = datetime.date.today().strftime("%Y-%m-%d")
         now_time = datetime.datetime.now().strftime("%H:%M:%S") 
         
@@ -83,16 +83,20 @@ if len(st.session_state.workout_log) > 0:
             row["Workout Name"] = workout_name
 
         save_df = pd.DataFrame(final_log)
-        file_path = "workout_history.csv"
         
-        if os.path.isfile(file_path):
-            existing_df = pd.read_csv(file_path)
-            updated_df = pd.concat([existing_df, save_df], ignore_index=True)
-            updated_df.to_csv(file_path, index=False)
-        else:
-            save_df.to_csv(file_path, index=False)
+        # Read from Google Sheets, append new data, and update
+        with st.spinner("Saving to Google Sheets..."):
+            try:
+                # ttl=0 forces it to fetch the absolute latest data, ignoring cache
+                existing_df = conn.read(spreadsheet=SHEET_URL, usecols=list(range(7)), ttl=0)
+                existing_df = existing_df.dropna(how="all") 
+                updated_df = pd.concat([existing_df, save_df], ignore_index=True)
+            except Exception:
+                updated_df = save_df
+                
+            conn.update(spreadsheet=SHEET_URL, data=updated_df)
             
-        st.success("Workout permanently saved!")
+        st.success("Workout permanently saved to the cloud!")
         st.session_state.workout_log = [] 
 else:
     st.info("Click the 'Load Template' button to pull up your exercises.")
