@@ -61,7 +61,11 @@ try:
                 workout_data = df[(df['Date'] == date_str) & (df['Time'] == time_str) & (df['Workout Name'] == workout_str)]
                 display_data = workout_data.drop(columns=['Date', 'Workout Name', 'Time'])
                 
-                styled_display = display_data.style.apply(get_row_color, axis=1).format({"Weight (kg)": "{:.1f}"})
+                styled_display = display_data.style.apply(get_row_color, axis=1).format({
+    "Weight (kg)": "{:.1f}",
+    "Set": "{:.0f}",
+    "Reps": "{:.0f}"
+})
                 st.dataframe(styled_display, use_container_width=True, hide_index=True)
                 
         total_workouts = df["Date"].nunique()
