@@ -3,6 +3,7 @@ import pandas as pd
 import datetime
 import json
 from streamlit_gsheets import GSheetsConnection
+import plotly.express as px
 
 # Custom HTML Logo
 st.markdown(

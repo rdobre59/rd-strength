@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
+import plotly.express as px
 
 st.markdown(
     """
@@ -116,8 +117,17 @@ try:
         chart_data = chart_data.sort_values(by="Date", ascending=True)
         
         if not chart_data.empty:
-            st.line_chart(chart_data, x="Date", y="Weight (kg)")
-    else:
-        st.info("No workout history found yet. Go log your first session!")
+            fig_prog = px.line(
+            chart_data, 
+            x="Date", 
+            y="Weight (kg)", 
+            markers=True, 
+            text="Weight (kg)"
+                            )
+            fig_prog.update_traces(textposition="top center")
+            fig_prog.update_xaxes(dtick=86400000, tickformat="%b %d, %Y")
+            st.plotly_chart(fig_prog, use_container_width=True)
+        else:
+                st.info("No workout history found yet. Go log your first session!")
 except Exception as e:
     st.info("No workout history found yet. Go log your first session!")
