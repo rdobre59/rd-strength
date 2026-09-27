@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import json
 from streamlit_gsheets import GSheetsConnection
 
 st.markdown(
@@ -29,10 +28,7 @@ def get_row_color(row):
 
 # --- GOOGLE SHEETS CONNECTION ---
 conn = st.connection("gsheets", type=GSheetsConnection)
-
-# Pull the secure URL from Streamlit Secrets
 SHEET_URL = st.secrets["sheet_url"]
-# --------------------------------
 
 try:
     df = conn.read(spreadsheet=SHEET_URL, usecols=list(range(7)), ttl=0)
@@ -46,9 +42,13 @@ try:
             
         df = df.sort_values(by=["Date", "Time"], ascending=[False, False])
         
-        st.subheader("Past Workouts")
+        st.subheader("Past Workouts & Live Corrections")
+        st.caption("Expand a session below to view, edit weights/reps, or save changes directly to the cloud.")
         
         unique_workouts = df[['Date', 'Time', 'Workout Name']].drop_duplicates()
+        
+        # We store the updated master dataframe across interactions if needed
+        all_sessions_dfs = []
         
         for index, row in unique_workouts.iterrows():
             date_str = row['Date']
@@ -58,16 +58,49 @@ try:
             time_display = f" ({time_str})" if time_str != "" else ""
             
             with st.expander(f"{workout_str}  •  {date_str}{time_display}"):
-                workout_data = df[(df['Date'] == date_str) & (df['Time'] == time_str) & (df['Workout Name'] == workout_str)]
-                display_data = workout_data.drop(columns=['Date', 'Workout Name', 'Time'])
+                # Isolate this specific session's rows
+                session_mask = (df['Date'] == date_str) & (df['Time'] == time_str) & (df['Workout Name'] == workout_str)
+                workout_data = df[session_mask].copy()
                 
-                styled_display = display_data.style.apply(get_row_color, axis=1).format({
-    "Weight (kg)": "{:.1f}",
-    "Set": "{:.0f}",
-    "Reps": "{:.0f}"
-})
-                st.dataframe(styled_display, use_container_width=True, hide_index=True)
+                # We want the data editor to show clean user-facing columns
+                editable_data = workout_data.drop(columns=['Date', 'Workout Name', 'Time'])
                 
+                # Calculate dynamic height to stop vertical scrolling 
+                # (approx 35px per row + header + buffer for 1 new row)
+                dynamic_height = (len(editable_data) + 2) * 35 + 10
+                
+                edited_sub_df = st.data_editor(
+                    editable_data,
+                    use_container_width=True,
+                    hide_index=True,
+                    num_rows="dynamic",
+                    height=dynamic_height,
+                    key=f"editor_{date_str}_{time_str}_{workout_str}",
+                    column_config={
+                        "Exercise": st.column_config.TextColumn("Exercise", width="medium"),
+                        "Weight (kg)": st.column_config.NumberColumn("Weight", width="small", format="%.1f"),
+                        "Set": st.column_config.NumberColumn("Set", width="small", format="%d"),
+                        "Reps": st.column_config.NumberColumn("Reps", width="small", format="%d")
+                    }
+                )
+                
+                # Reattach the hidden metadata columns back to the edited rows
+                edited_sub_df["Date"] = date_str
+                edited_sub_df["Time"] = time_str
+                edited_sub_df["Workout Name"] = workout_str
+                
+                all_sessions_dfs.append(edited_sub_df)
+                
+                if st.button("Save Changes to This Session", key=f"save_{date_str}_{time_str}_{workout_str}"):
+                    with st.spinner("Updating Google Sheet..."):
+                        # Rebuild the full master dataframe by replacing this session's old rows with the new ones
+                        other_sessions_df = df[~session_mask]
+                        final_master_df = pd.concat([other_sessions_df, edited_sub_df], ignore_index=True)
+                        
+                        conn.update(spreadsheet=SHEET_URL, data=final_master_df)
+                    st.success("Session updated successfully in the cloud!")
+                    st.rerun()
+                    
         total_workouts = df["Date"].nunique()
         st.caption(f"Total workout days logged: {total_workouts}")
         
