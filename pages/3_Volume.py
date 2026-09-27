@@ -2,6 +2,23 @@ import streamlit as st
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 
+
+
+
+st.set_page_config(
+    page_title="RD Strength", 
+    page_icon="app_icon.png"
+)
+
+st.markdown(
+    """
+    <div style="text-align: center; padding-bottom: 20px;">
+        <h1 style="color: white; font-size: 3.2rem; font-weight: 800; margin-bottom: 5px; letter-spacing: 2px;">RD STRENGTH</h1>
+        <div style="height: 5px; width: 120px; margin: 0 auto; background: linear-gradient(90deg, rgba(54, 162, 235, 1) 0%, rgba(255, 159, 64, 1) 50%, rgba(75, 192, 192, 1) 100%); border-radius: 5px;"></div>
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
 # Keep the consistent custom header
 st.markdown(
     """
