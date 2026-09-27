@@ -3,10 +3,28 @@ import pandas as pd
 from datetime import date
 from streamlit_gsheets import GSheetsConnection
 import plotly.express as px
+import streamlit.components.v1 as components
 
 st.set_page_config(
     page_title="RD Strength", 
-    page_icon="app_icon.png"
+    page_icon="app-icon.png"
+)
+
+components.html(
+    """
+    <script>
+        const doc = window.parent.document;
+        let link = doc.querySelector("link[rel='apple-touch-icon']");
+        if (!link) {
+            link = doc.createElement('link');
+            link.rel = 'apple-touch-icon';
+            doc.head.appendChild(link);
+        }
+       
+        link.href = 'https://raw.githubusercontent.com/rdobre59/rd-strength/main/app-icon.png';
+    </script>
+    """,
+    height=0
 )
 
 st.markdown(
