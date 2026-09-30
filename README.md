@@ -13,7 +13,6 @@ RD Strength is a lightweight fitness logging application designed to replace spr
 * **Cloud Database (Google Sheets):** Workouts are saved in real-time to a private Google Sheet you control, ensuring persistent and secure data storage.
 * **Smart History Filtering:** Past workouts are grouped into collapsible accordions by date and session name for a clean UI.
 * **Visual Progress Tracking:** Automatically plots the maximum weight lifted per exercise on a chronological line chart to ensure progressive overload.
-* **Custom UI Theme:** Features a custom dark-mode aesthetic with automatic muscle-group color coordination (Blue for Chest/Back, Orange for Arms/Shoulders, Mint for Legs).
 
 ## Technology Stack
 * **Language:** Python
