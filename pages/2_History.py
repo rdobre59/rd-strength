@@ -37,7 +37,7 @@ st.markdown(
 )
 
 CHEST_BACK = ["Bench Press", "Incline Dumbbell Press", "Lat Pulldown", "Barbell Row", "Pull-ups", "Incline Chest Press", "Wide Pulldown", "Low Row", "Low Fly"]
-ARMS_SHOULDERS = ["Overhead Press", "Lateral Raises", "Bicep Curls", "Tricep Extensions", "Tricep Extensions Single", "Cuff Shoulder Fly", "Overhead Tricep Extension", "Incline Drag Curl", "Rear Delt Fly", "Hammer Curl", "Tricep Pushdowns", "Face Pulls"]
+ARMS_SHOULDERS = ["Shoulder Press", "Lateral Raises", "Bicep Curls", "Tricep Extensions", "Tricep Extensions Single", "Cuff Shoulder Fly", "Overhead Tricep Extension", "Incline Drag Curl", "Rear Delt Fly", "Hammer Curl", "Tricep Pushdowns", "Face Pulls"]
 LEGS = ["Squats", "Leg Press", "Romanian Deadlifts", "Calf Raises", "Abductors", "Quad extension", "Sissy Squat Hack", "Calf Press", "Ham Curl", "Adductors", "Single Leg Hyperextension", "Leg Extensions", "Hamstring Curls"]
 
 def get_row_color(row):
