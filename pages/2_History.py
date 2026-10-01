@@ -101,10 +101,10 @@ try:
                 hide_index=True,
                 height=dynamic_height,
                 column_config={
-                    "Exercise": st.column_config.TextColumn("Exercise", width=145),
+                    "Exercise": st.column_config.TextColumn("Exercise", width=140),
                     "Weight (kg)": st.column_config.NumberColumn("W (kg)", width=75, format="%.1f"),
-                    "Set": st.column_config.NumberColumn("Set", width=45, format="%d"),
-                    "Reps": st.column_config.NumberColumn("Reps", width=55, format="%d")
+                    "Set": st.column_config.NumberColumn("Set", width=50, format="%d"),
+                    "Reps": st.column_config.NumberColumn("Reps", width=60, format="%d")
                 }
             )
                 
