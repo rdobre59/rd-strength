@@ -103,9 +103,9 @@ try:
                 height=dynamic_height,
                 column_config={
                     "Exercise": st.column_config.TextColumn("Exercise", width=180),
-                    "Weight (kg)": st.column_config.NumberColumn("W (kg)", width=80, format="%.1f"),
-                    "Set": st.column_config.NumberColumn("Set", width=80, format="%d"),
-                    "Reps": st.column_config.NumberColumn("Reps", width=80, format="%d")
+                    "Weight (kg)": st.column_config.NumberColumn("W (kg)", width=60, format="%.1f"),
+                    "Set": st.column_config.NumberColumn("Set", width=60, format="%d"),
+                    "Reps": st.column_config.NumberColumn("Reps", width=60, format="%d")
                 }
             )
                 
