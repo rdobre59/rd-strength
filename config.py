@@ -1,5 +1,5 @@
 TEMPLATES = {
-    "Anterior": [("Tricep Extensions Single", 2), ("Cuff Shoulder Fly", 2), ("Mid Fly", 2), ("Chest Press", 2), ("Overhead Tricep Extension", 2), ("Abductors", 2), ("Shoulder Press", 2), ("Quad extension", 2), ("Sissy Squat Hack", 2)],
+    "Anterior": [("Tricep Extensions Sg", 2), ("Cuff Shoulder Fly", 2), ("Mid Fly", 2), ("Chest Press", 2), ("OH Tricep Extension", 2), ("Abductors", 2), ("Shoulder Press", 2), ("Quad extension", 2), ("Sissy Squat Hack", 2)],
     "Posterior": [("Calf Press", 2), ("Wide Pulldown", 2), ("Incline Drag Curl", 2), ("Rear Delt Fly", 2), ("Hammer Curl", 2), ("Low Row", 2), ("Ham Curl", 2), ("Adductors", 2), ("Single Leg Hyperextension", 2)],
     "Arnold: Chest & Back": [("Bench Press", 2), ("Incline Dumbbell Press", 2), ("Lat Pulldown", 2), ("Barbell Row", 2), ("Pull-ups", 2)],
     "Arnold: Shoulders & Arms": [("Overhead Press", 2), ("Lateral Raises", 2), ("Bicep Curls", 2), ("Tricep Extensions", 2)],
