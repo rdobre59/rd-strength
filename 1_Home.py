@@ -6,6 +6,7 @@ from streamlit_gsheets import GSheetsConnection
 import plotly.express as px
 import streamlit.components.v1 as components
 from config import TEMPLATES
+from zoneinfo import ZoneInfo
 
 st.set_page_config(
     page_title="RD Strength", 
@@ -88,8 +89,10 @@ if len(st.session_state.workout_log) > 0:
     
     if st.button("Finish & Save Workout"):
         final_log = edited_df.to_dict('records')
-        today = datetime.date.today().strftime("%Y-%m-%d")
-        now_time = datetime.datetime.now().strftime("%H:%M:%S") 
+        bucharest_tz = ZoneInfo("Europe/Bucharest")
+        current_datetime = datetime.datetime.now(bucharest_tz)
+        today = current_datetime.strftime("%Y-%m-%d")
+        now_time = current_datetime.strftime("%H:%M:%S")
         
         for row in final_log:
             row["Date"] = today

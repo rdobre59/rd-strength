@@ -3,6 +3,8 @@ import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 import plotly.express as px
 import streamlit.components.v1 as components
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 st.set_page_config(
     page_title="RD Strength", 
@@ -94,19 +96,18 @@ try:
                 dynamic_height = (len(editable_data) + 2) * 35 + 10
                 
                 edited_sub_df = st.data_editor(
-                    editable_data,
-                    use_container_width=True,
-                    hide_index=True,
-                    num_rows="dynamic",
-                    height=dynamic_height,
-                    key=f"editor_{date_str}_{time_str}_{workout_str}",
-                    column_config={
-                        "Exercise": st.column_config.TextColumn("Exercise", width="medium"),
-                        "Weight (kg)": st.column_config.NumberColumn("Weight", width="small", format="%.1f"),
-                        "Set": st.column_config.NumberColumn("Set", width="small", format="%d"),
-                        "Reps": st.column_config.NumberColumn("Reps", width="small", format="%d")
-                    }
-                )
+                editable_data,
+                use_container_width=False, 
+                hide_index=True,
+                num_rows="dynamic",
+                height=dynamic_height,
+                column_config={
+                    "Exercise": st.column_config.TextColumn("Exercise", width=180),
+                    "Weight (kg)": st.column_config.NumberColumn("W (kg)", width=80, format="%.1f"),
+                    "Set": st.column_config.NumberColumn("Set", width=80, format="%d"),
+                    "Reps": st.column_config.NumberColumn("Reps", width=80, format="%d")
+                }
+            )
                 
                 # Reattach the hidden metadata columns back to the edited rows
                 edited_sub_df["Date"] = date_str
