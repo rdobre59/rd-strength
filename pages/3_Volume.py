@@ -1,13 +1,16 @@
 import streamlit as st
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
+import plotly.express as px
 import streamlit.components.v1 as components
 
+# This must be the absolute first Streamlit command
 st.set_page_config(
     page_title="RD Strength", 
     page_icon="app-icon.png"
 )
 
+# Apple Touch Icon injection
 components.html(
     """
     <script>
@@ -18,14 +21,12 @@ components.html(
             link.rel = 'apple-touch-icon';
             doc.head.appendChild(link);
         }
-        
         link.href = 'https://raw.githubusercontent.com/rdobre59/rd-strength/main/app-icon.png';
     </script>
     """,
     height=0
 )
 
-# Keep the consistent custom header
 st.markdown(
     """
     <div style="text-align: center; padding-bottom: 20px;">
@@ -36,66 +37,112 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- GOOGLE SHEETS CONNECTION ---
+st.subheader("Volume Analytics")
+
 conn = st.connection("gsheets", type=GSheetsConnection)
 SHEET_URL = st.secrets["sheet_url"]
 
 try:
-    # Pull data from the cloud
-    df = conn.read(spreadsheet=SHEET_URL, usecols=list(range(7)), ttl=0)
-    df = df.dropna(how="all")
+    # Read the first 7 columns (A through G) which includes 'Workout Name'
+    workout_df = conn.read(spreadsheet=SHEET_URL, usecols=list(range(7)), ttl=0).dropna(how="all")
     
-    if not df.empty:
-        st.subheader("Volume Analytics")
-        st.caption("Total Volume = Weight (kg) × Reps")
+    if not workout_df.empty and "Workout Name" in workout_df.columns:
+        workout_df["Date"] = pd.to_datetime(workout_df["Date"])
+        workout_df["Weight (kg)"] = pd.to_numeric(workout_df["Weight (kg)"], errors='coerce').fillna(0.0)
+        workout_df["Reps"] = pd.to_numeric(workout_df["Reps"], errors='coerce').fillna(0.0)
+        workout_df["Volume (kg)"] = workout_df["Weight (kg)"] * workout_df["Reps"]
         
-        # 1. Clean and convert data types
-        df["Weight (kg)"] = pd.to_numeric(df["Weight (kg)"], errors='coerce').fillna(0)
-        df["Reps"] = pd.to_numeric(df["Reps"], errors='coerce').fillna(0)
+        # Clean the column strings to prevent mismatches
+        workout_df["Workout Name"] = workout_df["Workout Name"].astype(str).str.strip()
+
+        st.divider()
         
-        # 2. Calculate the actual volume per set
-        df["Volume (kg)"] = df["Weight (kg)"] * df["Reps"]
-        
-        # 3. Parse the Date string into datetime objects for grouping
-        df["Date"] = pd.to_datetime(df["Date"])
-        df["Year"] = df["Date"].dt.strftime('%Y')
-        df["Month"] = df["Date"].dt.strftime('%Y-%m')
-        df["Day"] = df["Date"].dt.strftime('%Y-%m-%d')
-        
-        # Optional Filter: See total overall volume or isolate a specific lift
-        exercises = ["Total (All Exercises)"] + list(df["Exercise"].unique())
-        selected_ex = st.selectbox("Filter by Exercise:", exercises)
-        
-        if selected_ex != "Total (All Exercises)":
-            df = df[df["Exercise"] == selected_ex]
-            
+        # 1. Filters
+        exercise_list = ["All Exercises"] + list(workout_df["Exercise"].dropna().unique())
+        selected_exercise = st.selectbox("Filter by Exercise", exercise_list)
+
+        workout_list = ["All Workouts"] + list(workout_df["Workout Name"].dropna().unique())
+        selected_workout = st.selectbox("Filter by Workout", workout_list)
+
+        # Apply filters
+        filtered_df = workout_df.copy()
+
+        if selected_exercise != "All Exercises":
+            filtered_df = filtered_df[filtered_df["Exercise"] == selected_exercise]
+
+        if selected_workout != "All Workouts":
+            filtered_df = filtered_df[filtered_df["Workout Name"] == selected_workout]
+
         st.divider()
 
-        # Create tabs for clean mobile navigation
-        tab_day, tab_month, tab_year = st.tabs(["Daily", "Monthly", "Yearly"])
-        
-        with tab_day:
-            daily_vol = df.groupby("Day")["Volume (kg)"].sum().reset_index()
-            if not daily_vol.empty:
-                st.bar_chart(daily_vol.set_index("Day"), y="Volume (kg)")
-            else:
-                st.info("No data for this selection.")
+        if not filtered_df.empty:
+            # Define specific colors for your splits
+            split_colors = {
+                "Anterior": "#36a2eb",  # Blue
+                "Posterior": "#ff6384", # Red
+                "Push": "#36a2eb",      
+                "Pull": "#ff6384",
+                "Legs": "#4bc0c0"       # Mint Green
+            }
+
+            tab1, tab2, tab3 = st.tabs(["Daily", "Monthly", "Yearly"])
+            
+            with tab1:
+                # Group by Date AND Workout Name
+                daily_vol = filtered_df.groupby(["Date", "Workout Name"])["Volume (kg)"].sum().reset_index()
+                daily_vol["Volume (kg)"] = daily_vol["Volume (kg)"].astype(float)
+                daily_vol["Volume Label"] = daily_vol["Volume (kg)"].astype(str)
                 
-        with tab_month:
-            monthly_vol = df.groupby("Month")["Volume (kg)"].sum().reset_index()
-            if not monthly_vol.empty:
-                st.bar_chart(monthly_vol.set_index("Month"), y="Volume (kg)")
-            else:
-                st.info("No data for this selection.")
+                fig_daily = px.bar(
+                    daily_vol, 
+                    x="Date", 
+                    y="Volume (kg)", 
+                    color="Workout Name", 
+                    color_discrete_map=split_colors,
+                    text="Volume Label"
+                )
+                fig_daily.update_traces(textposition="outside")
+                fig_daily.update_xaxes(dtick="86400000", tickformat="%b %d, %Y")
+                st.plotly_chart(fig_daily, use_container_width=True)
                 
-        with tab_year:
-            yearly_vol = df.groupby("Year")["Volume (kg)"].sum().reset_index()
-            if not yearly_vol.empty:
-                st.bar_chart(yearly_vol.set_index("Year"), y="Volume (kg)")
-            else:
-                st.info("No data for this selection.")
+            with tab2:
+                monthly_vol = filtered_df.groupby([pd.Grouper(key="Date", freq="ME"), "Workout Name"])["Volume (kg)"].sum().reset_index()
+                monthly_vol["Volume (kg)"] = monthly_vol["Volume (kg)"].astype(float)
+                monthly_vol["Volume Label"] = monthly_vol["Volume (kg)"].astype(str)
                 
+                fig_monthly = px.bar(
+                    monthly_vol, 
+                    x="Date", 
+                    y="Volume (kg)", 
+                    color="Workout Name",
+                    color_discrete_map=split_colors, 
+                    text="Volume Label"
+                )
+                fig_monthly.update_traces(textposition="outside")
+                fig_monthly.update_xaxes(dtick="M1", tickformat="%b %Y")
+                st.plotly_chart(fig_monthly, use_container_width=True)
+                
+            with tab3:
+                yearly_vol = filtered_df.groupby([pd.Grouper(key="Date", freq="YE"), "Workout Name"])["Volume (kg)"].sum().reset_index()
+                yearly_vol["Volume (kg)"] = yearly_vol["Volume (kg)"].astype(float)
+                yearly_vol["Year"] = yearly_vol["Date"].dt.year.astype(str)
+                yearly_vol["Volume Label"] = yearly_vol["Volume (kg)"].astype(str)
+                
+                fig_yearly = px.bar(
+                    yearly_vol, 
+                    x="Year", 
+                    y="Volume (kg)", 
+                    color="Workout Name",
+                    color_discrete_map=split_colors, 
+                    text="Volume Label"
+                )
+                fig_yearly.update_traces(textposition="outside")
+                st.plotly_chart(fig_yearly, use_container_width=True)
+        else:
+            st.info("No volume data found for the selected filters.")
+            
     else:
-        st.info("No workout history found yet. Go log your first session!")
+        st.error("Could not find the 'Workout Name' column or the sheet is empty.")
+
 except Exception as e:
-    st.info("Unable to load workout history. Ensure your Google Sheet is connected properly.")
+    st.error(f"Error loading data: {e}")
