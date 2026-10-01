@@ -38,8 +38,8 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-CHEST_BACK = ["Bench Press", "Incline Dumbbell Press", "Lat Pulldown", "Barbell Row", "Pull-ups", "Incline Chest Press", "Wide Pulldown", "Low Row", "Low Fly"]
-ARMS_SHOULDERS = ["Shoulder Press", "Lateral Raises", "Bicep Curls", "Tricep Extensions", "Tricep Extensions Single", "Cuff Shoulder Fly", "Overhead Tricep Extension", "Incline Drag Curl", "Rear Delt Fly", "Hammer Curl", "Tricep Pushdowns", "Face Pulls"]
+CHEST_BACK = ["Bench Press", "Incline Dumbbell Press", "Lat Pulldown", "Barbell Row", "Pull-ups", "Incline Chest Press", "Wide Pulldown", "Low Row", "Mid Fly"]
+ARMS_SHOULDERS = ["Shoulder Press", "Lateral Raises", "Bicep Curls", "Tricep Extensions", "Tricep Extensions Sg", "Cuff Shoulder Fly", "OH Tricep Extension", "Incline Drag Curl", "Rear Delt Fly", "Hammer Curl", "Tricep Pushdowns", "Face Pulls"]
 LEGS = ["Squats", "Leg Press", "Romanian Deadlifts", "Calf Raises", "Abductors", "Quad extension", "Sissy Squat Hack", "Calf Press", "Ham Curl", "Adductors", "Single Leg Hyperextension", "Leg Extensions", "Hamstring Curls"]
 
 def get_row_color(row):
@@ -99,13 +99,12 @@ try:
                 editable_data,
                 use_container_width=False, 
                 hide_index=True,
-                num_rows="dynamic",
                 height=dynamic_height,
                 column_config={
                     "Exercise": st.column_config.TextColumn("Exercise", width=180),
-                    "Weight (kg)": st.column_config.NumberColumn("W (kg)", width=60, format="%.1f"),
+                    "Weight (kg)": st.column_config.NumberColumn("W (kg)", width=80, format="%.1f"),
                     "Set": st.column_config.NumberColumn("Set", width=60, format="%d"),
-                    "Reps": st.column_config.NumberColumn("Reps", width=60, format="%d")
+                    "Reps": st.column_config.NumberColumn("Reps", width=70, format="%d")
                 }
             )
                 
